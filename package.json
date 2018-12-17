@@ -1,0 +1,30 @@
+{
+  "name": "slidescroll",
+  "version": "1.0.0",
+  "description": "Pure CSS SlideShow vertical animation (based on display: sticky)",
+  "main": "index",
+  "files": [
+    "index.*"
+  ],
+  "scripts": {
+    "prepare": "babel index.mjs --out-file index.js --presets @babel/env && babel index.js --minified --no-comments --source-maps -o index.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PonomareVlad/SlideScroll.git"
+  },
+  "author": {
+    "name": "Vladislav Ponomarev",
+    "url": "https://ponomarevlad.ru"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PonomareVlad/SlideScroll/issues"
+  },
+  "homepage": "https://github.com/PonomareVlad/SlideScroll#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.0"
+  }
+}

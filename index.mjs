@@ -1,0 +1,98 @@
+export default class SlideScroll {
+    constructor({
+                    sliderNode = '[data-slider-viewport]',
+                    scrollEventDelay = 1,
+                    debug = false
+                } = {}) {
+        this.options = {
+            sliderNode: sliderNode instanceof Node ? sliderNode : document.querySelector(sliderNode),
+            scrollEventDelay,
+            debug
+        };
+
+        this.attachConsoleProxy();
+
+        document.readyState === 'complete' ? this.init() :
+            this.listenEvent('load', this.init);
+    }
+
+    init() {
+
+        // Кэширование списка слайдов
+        this.loadSectionsList();
+
+        // Событие прокрутки на целевом узле
+        this.listenEvent('scroll', this.scrollEventHandler, document);
+
+    }
+
+    scrollEventHandler() {
+
+        // Ограничение такта вызова обработчика события скролла
+        return debounce(() => {
+
+            // Перебор всех закэшированных слайдов
+            this.slidesList.forEach(slideNode => {
+
+                if (document.scrollingElement.scrollTop < slideNode.dimThreshold) return this.setSlideDim(slideNode, 100);
+
+                else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) return this.setSlideDim(slideNode, 0);
+
+                else this.setSlideDim(slideNode, ((slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 100)));
+
+            });
+
+            // Установка времени задержки для ограничения такта
+        }, this.options.scrollEventDelay)()
+
+    }
+
+    setSlideDim(slideNode, dim) {
+        if (slideNode.dim === dim) return true;
+        slideNode.style.setProperty('--dim-opacity', dim / 100);
+        slideNode.dim = dim;
+    }
+
+    loadSectionsList() {
+
+        // Выборка и кэширование списка слайдов
+        this.slidesList = this.options.sliderNode.querySelectorAll('[data-slide-wrapper]');
+
+        this.slidesList.forEach((slideNode, number) => {
+            slideNode.style.setProperty('--slide-number', number + 1);
+            slideNode.sectionOffset = window.innerHeight * number;
+            slideNode.dimThreshold = slideNode.sectionOffset - window.innerHeight;
+            slideNode.dim = 0;
+        });
+
+        this.console.debug(`${this.slidesList.length} slides loaded`, this.slidesList)
+
+    }
+
+    listenEvent(event, listener, target = window) {
+
+        return target.addEventListener.call(target, event, listener.bind(this));
+
+    }
+
+    attachConsoleProxy() {
+
+        this.console = ['log', 'debug', 'error'].reduce((proxyObject, method) =>
+            (proxyObject[method] = (...args) => (this.options.debug ? console[method].call(console, ...args) : null)) && proxyObject, {})
+
+    }
+
+}
+
+export function debounce(func, wait) {
+    // Уменьшение тактов вызова функции
+    let timeout;
+    return function (...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait)
+    }
+}
+
+// Проброс класса в глобальную область видимости
+window.SlideScroll = SlideScroll;
