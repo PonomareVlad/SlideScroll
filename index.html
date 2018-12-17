@@ -3,55 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Demo</title>
-    <style>
-        *{
-            box-sizing: border-box;
-        }
-        :root,body{
-            margin: 0;
-            padding: 0;
-        }
-        .slide-viewport{
-            /*position: relative;*/
-        }
-        .slide-wrapper{
-            --slide-number: 1;
-            position: absolute;
-            top: 0;
-            /*height: calc(var(--slide-number)*100vh);
-            z-index: var(--slide-number);*/
-
-        }
-        .slide-content{
-            position: -webkit-sticky;
-            position: sticky;
-            top: 0;
-            min-height: 100vh;
-            max-height: 100vh;
-            height: 100vh;
-            width: 100vw;
-            background-position: center;
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-color: white;
-            /*opacity: .3;*/
-        }
-        .slide-wrapper:nth-child(2){--slide-number: 2;}
-        .slide-wrapper:nth-child(3){--slide-number: 3;}
-        .slide-wrapper:nth-child(4){--slide-number: 4;}
-        .slide-wrapper:last-child{position: initial;top:initial;}
-        .slide-wrapper{
-            height: calc(var(--slide-number)*100vh);
-        }
-        .slide-content{
-            z-index: calc(1000 + (var(--slide-number) * -1));
-        }
-    </style>
+    <link href="SlideScroll.css" rel="stylesheet">
+    <script src="SlideScroll.js"></script>
 </head>
 <body class="slide-viewport">
-<section class="slide-wrapper"><div class="slide-content" style="background-image: url(https://picsum.photos/1024/?random&1)"></div></section>
-<section class="slide-wrapper"><div class="slide-content" style="background-image: url(https://picsum.photos/1024/?random&2)"></div></section>
-<section class="slide-wrapper"><div class="slide-content" style="background-image: url(https://picsum.photos/1024/?random&3)"></div></section>
-<section class="slide-wrapper"><div class="slide-content" style="background-image: url(https://picsum.photos/1024/?random&4)"></div></section>
+
+<section class="slide-wrapper">
+    <div class="slide-content" style="background-image: url(https://picsum.photos/1024/?random&1)"></div>
+</section>
+
+<section class="slide-wrapper">
+    <div class="slide-content" style="background-image: url(https://picsum.photos/1024/?random&2)"></div>
+</section>
+
+<section class="slide-wrapper">
+    <div class="slide-content" style="background-image: url(https://picsum.photos/1024/?random&3)"></div>
+</section>
+
+<section class="slide-wrapper">
+    <div class="slide-content" style="background-image: url(https://picsum.photos/1024/?random&4)"></div>
+</section>
+
 </body>
 </html>
