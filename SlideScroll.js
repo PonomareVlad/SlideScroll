@@ -12,17 +12,26 @@ function prepareSlide(node, number) {
 
 function scrollHandler(event) {
     event.target.querySelectorAll('.slide-wrapper').forEach((node, number) => {
+        // debugger;
+        if (number === 0) return;
         const sectionOffset = window.innerHeight * number;
         const dimmThreshold = sectionOffset - window.innerHeight;
         // if (number === 2) console.log(document.body.scrollTop, sectionOffset, dimmThreshold);
-        const slideContent = node.querySelector('.slide-content');
-        if (document.body.scrollTop < dimmThreshold) slideContent.style.opacity = 0;
-        else if (document.body.scrollTop > sectionOffset) slideContent.style.opacity = 1;
+        let dim = 0;
+        if (document.body.scrollTop < dimmThreshold) dim = 100;
+        else if (document.body.scrollTop > sectionOffset) dim = 0;
         else {
-            const opacity = ((document.body.scrollTop) / (sectionOffset / 100)) / 100;
-            if (number === 2) console.log(opacity, document.body.scrollTop, sectionOffset);
-            slideContent.style.opacity = opacity;
+            // if (number === 2) console.log('section: 3', 'scrollTop: ' + document.body.scrollTop, 'sectionOffset: ' + sectionOffset,'sectionOffset-scrollTop:'+(sectionOffset-document.body.scrollTop),'opacityCoefficient: '+((sectionOffset-document.body.scrollTop)/(window.innerHeight/100)));
+            dim = ((sectionOffset - document.body.scrollTop) / (window.innerHeight / 100));
+            // if (number === 2) console.log(opacity, document.body.scrollTop, sectionOffset);
+            // slideContent.style.opacity = opacity;
+            // node.style.setProperty('--dimm-opacity', (100-opacity)/100);
             // console.log(opacity);
+        }
+        // console.log(dim);
+        if (node.dim !== dim) {
+            node.style.setProperty('--dimm-opacity', dim / 100);
+            node.dim = dim;
         }
     })
 }
