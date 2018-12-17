@@ -49,8 +49,7 @@ var SlideScroll =
           scrollEventDelay: scrollEventDelay,
           debug: debug
         };
-        this.attachConsoleProxy(); // if (forceInitOnLoad) return this.listenEvent('load', this.init);
-
+        this.attachConsoleProxy();
         document.readyState === 'complete' ? this.init() : this.listenEvent('load', this.init);
       }
 
