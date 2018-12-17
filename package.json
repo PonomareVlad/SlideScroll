@@ -1,5 +1,5 @@
 {
-  "name": "slidescroll",
+  "name": "slidescrollcss",
   "version": "1.0.0",
   "description": "Pure CSS SlideShow vertical animation (based on display: sticky)",
   "main": "index",
