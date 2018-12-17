@@ -5,7 +5,7 @@ export default class SlideScroll {
                     debug = false
                 } = {}) {
         this.options = {
-            sliderNode: sliderNode instanceof Node ? sliderNode : document.querySelector(sliderNode),
+            sliderNode,
             scrollEventDelay,
             debug
         };
@@ -17,6 +17,8 @@ export default class SlideScroll {
     }
 
     init() {
+
+        this.options.sliderNode = this.options.sliderNode instanceof Node ? this.options.sliderNode : document.querySelector(this.options.sliderNode);
 
         // Кэширование списка слайдов
         this.loadSectionsList();
