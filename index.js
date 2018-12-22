@@ -71,14 +71,26 @@ var SlideScroll =
           return debounce(function () {
             // Перебор всех закэшированных слайдов
             _this.slidesList.forEach(function (slideNode) {
-              if (document.scrollingElement.scrollTop < slideNode.dimThreshold) return _this.setSlideDim(slideNode, 100); else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) return _this.setSlideDim(slideNode, 0); else _this.setSlideDim(slideNode, (slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 100));
+              // До слайда расстояние больше чем высота одного слайда (ниже, через один от активного)
+              if (document.scrollingElement.scrollTop < slideNode.dimThreshold) return _this.setSlideDim(slideNode, 100) && _this.setSlideActive(slideNode, false); // До слайда расстояние больше чем высота одного слайда (выше, следующий за активным)
+              else if (document.scrollingElement.scrollTop > slideNode.sectionOffsetEnd) return _this.setSlideDim(slideNode, 0) && _this.setSlideActive(slideNode, false); // Активный слайд, расстояние меньше чем высота одного слайда
+              else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) return _this.setSlideDim(slideNode, 0) && _this.setSlideActive(slideNode, true); // До слайда расстояние меньше чем высота одного слайда (ниже, следующий за активным)
+              else _this.setSlideDim(slideNode, (slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 100)) && _this.setSlideActive(slideNode, false);
             }); // Установка времени задержки для ограничения такта
 
           }, this.options.scrollEventDelay)();
         }
       }, {
+        key: "setSlideActive",
+        value: function setSlideActive(slideNode, state) {
+          // Устанавливем активный слайд
+          if (slideNode.classList.contains('active') === state) return true;
+          slideNode.classList.toggle('active', state);
+        }
+      }, {
         key: "setSlideDim",
         value: function setSlideDim(slideNode, dim) {
+          // Устанавливем прозрачность затемнения
           if (slideNode.dim === dim) return true;
           slideNode.style.setProperty('--dim-opacity', dim / 100);
           slideNode.dim = dim;
@@ -91,6 +103,7 @@ var SlideScroll =
           this.slidesList.forEach(function (slideNode, number) {
             slideNode.style.setProperty('--slide-number', number + 1);
             slideNode.sectionOffset = window.innerHeight * number;
+            slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
             slideNode.dimThreshold = slideNode.sectionOffset - window.innerHeight;
             slideNode.dim = 0;
           });

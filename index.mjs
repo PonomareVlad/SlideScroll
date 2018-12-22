@@ -36,12 +36,16 @@ export default class SlideScroll {
             // Перебор всех закэшированных слайдов
             this.slidesList.forEach(slideNode => {
 
+                // До слайда расстояние больше чем высота одного слайда (ниже, через один от активного)
                 if (document.scrollingElement.scrollTop < slideNode.dimThreshold) return this.setSlideDim(slideNode, 100) && this.setSlideActive(slideNode, false);
 
+                // До слайда расстояние больше чем высота одного слайда (выше, следующий за активным)
                 else if (document.scrollingElement.scrollTop > slideNode.sectionOffsetEnd) return this.setSlideDim(slideNode, 0) && this.setSlideActive(slideNode, false);
-                
+
+                // Активный слайд, расстояние меньше чем высота одного слайда
                 else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) return this.setSlideDim(slideNode, 0) && this.setSlideActive(slideNode, true);
 
+                // До слайда расстояние меньше чем высота одного слайда (ниже, следующий за активным)
                 else this.setSlideDim(slideNode, ((slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 100))) && this.setSlideActive(slideNode, false);
 
             });
@@ -52,11 +56,13 @@ export default class SlideScroll {
     }
 
     setSlideActive(slideNode, state) {
+        // Устанавливем активный слайд
         if (slideNode.classList.contains('active') === state) return true;
         slideNode.classList.toggle('active', state);
     }
 
     setSlideDim(slideNode, dim) {
+        // Устанавливем прозрачность затемнения
         if (slideNode.dim === dim) return true;
         slideNode.style.setProperty('--dim-opacity', dim / 100);
         slideNode.dim = dim;

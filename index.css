@@ -69,3 +69,51 @@
     background-image: none;
     background-color: white;
 }
+
+[data-slide-caption-animation] {
+    opacity: .1;
+    transition: opacity .2s;
+}
+
+.active [data-slide-caption-animation] {
+    opacity: .1;
+    animation: caption-enter-animation 5s 1;
+}
+
+[data-slide-caption-animation]:hover {
+    opacity: 1;
+}
+
+@keyframes caption-enter-animation {
+    from {
+        opacity: .1;
+    }
+    10%, 90% {
+        opacity: 1;
+    }
+    to {
+        opacity: .1;
+    }
+}
+
+
+/* DEMO */
+
+
+[data-slide-content] {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    text-align: center;
+}
+
+[data-slide-content] h1 {
+    font-family: sans-serif;
+    font-size: 4em;
+}
+
+[data-slide-content] p {
+    font-family: sans-serif;
+    font-size: 2em;
+}
