@@ -36,17 +36,24 @@ export default class SlideScroll {
             // Перебор всех закэшированных слайдов
             this.slidesList.forEach(slideNode => {
 
-                if (document.scrollingElement.scrollTop < slideNode.dimThreshold) return this.setSlideDim(slideNode, 100);
+                if (document.scrollingElement.scrollTop < slideNode.dimThreshold) return this.setSlideDim(slideNode, 100) && this.setSlideActive(slideNode, false);
 
-                else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) return this.setSlideDim(slideNode, 0);
+                else if (document.scrollingElement.scrollTop > slideNode.sectionOffsetEnd) return this.setSlideDim(slideNode, 0) && this.setSlideActive(slideNode, false);
+                
+                else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) return this.setSlideDim(slideNode, 0) && this.setSlideActive(slideNode, true);
 
-                else this.setSlideDim(slideNode, ((slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 100)));
+                else this.setSlideDim(slideNode, ((slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 100))) && this.setSlideActive(slideNode, false);
 
             });
 
             // Установка времени задержки для ограничения такта
         }, this.options.scrollEventDelay)()
 
+    }
+
+    setSlideActive(slideNode, state) {
+        if (slideNode.classList.contains('active') === state) return true;
+        slideNode.classList.toggle('active', state);
     }
 
     setSlideDim(slideNode, dim) {
@@ -63,6 +70,7 @@ export default class SlideScroll {
         this.slidesList.forEach((slideNode, number) => {
             slideNode.style.setProperty('--slide-number', number + 1);
             slideNode.sectionOffset = window.innerHeight * number;
+            slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
             slideNode.dimThreshold = slideNode.sectionOffset - window.innerHeight;
             slideNode.dim = 0;
         });
