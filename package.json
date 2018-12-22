@@ -1,6 +1,6 @@
 {
   "name": "slidescrollcss",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Pure CSS SlideShow vertical animation (based on display: sticky)",
   "main": "index",
   "files": [
@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/PonomareVlad/SlideScroll#readme",
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
+    "@babel/cli": "^7.2.3",
     "@babel/core": "^7.1.2",
-    "@babel/preset-env": "^7.1.0"
+    "@babel/preset-env": "^7.2.3"
   }
 }
