@@ -16,7 +16,7 @@
     --dim-opacity: 0;
     position: absolute;
     top: 0;
-
+    width: 100%;
 }
 
 [data-slide-content] {
@@ -26,7 +26,7 @@
     min-height: 100vh;
     max-height: 100vh;
     height: 100vh;
-    width: 100vw;
+    width: 100%;
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
