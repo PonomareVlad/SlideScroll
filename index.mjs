@@ -7,6 +7,7 @@ export default class SlideScroll {
         this.options = {
             sliderNode,
             scrollEventDelay,
+            iOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
             debug
         };
 
@@ -34,7 +35,13 @@ export default class SlideScroll {
         return debounce(() => {
 
             // Перебор всех закэшированных слайдов
-            this.slidesList.forEach(slideNode => {
+            this.slidesList.forEach((slideNode, number) => {
+
+                if (this.options.iOS) {
+                    slideNode.sectionOffset = window.innerHeight * number;
+                    slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
+                    slideNode.dimThreshold = slideNode.sectionOffset - window.innerHeight;
+                }
 
                 // До слайда расстояние больше чем высота одного слайда (ниже, через один от активного)
                 if (document.scrollingElement.scrollTop < slideNode.dimThreshold) return this.setSlideDim(slideNode, 100) && this.setSlideActive(slideNode, false);

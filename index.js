@@ -47,6 +47,7 @@ var SlideScroll =
         this.options = {
           sliderNode: sliderNode,
           scrollEventDelay: scrollEventDelay,
+          iOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
           debug: debug
         };
         this.attachConsoleProxy();
@@ -70,8 +71,14 @@ var SlideScroll =
           // Ограничение такта вызова обработчика события скролла
           return debounce(function () {
             // Перебор всех закэшированных слайдов
-            _this.slidesList.forEach(function (slideNode) {
-              // До слайда расстояние больше чем высота одного слайда (ниже, через один от активного)
+            _this.slidesList.forEach(function (slideNode, number) {
+              if (_this.options.iOS) {
+                slideNode.sectionOffset = window.innerHeight * number;
+                slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
+                slideNode.dimThreshold = slideNode.sectionOffset - window.innerHeight;
+              } // До слайда расстояние больше чем высота одного слайда (ниже, через один от активного)
+
+
               if (document.scrollingElement.scrollTop < slideNode.dimThreshold) return _this.setSlideDim(slideNode, 100) && _this.setSlideActive(slideNode, false); // До слайда расстояние больше чем высота одного слайда (выше, следующий за активным)
               else if (document.scrollingElement.scrollTop > slideNode.sectionOffsetEnd) return _this.setSlideDim(slideNode, 0) && _this.setSlideActive(slideNode, false); // Активный слайд, расстояние меньше чем высота одного слайда
               else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) return _this.setSlideDim(slideNode, 0) && _this.setSlideActive(slideNode, true); // До слайда расстояние меньше чем высота одного слайда (ниже, следующий за активным)
