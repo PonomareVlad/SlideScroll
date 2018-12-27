@@ -27,7 +27,7 @@
         import SlideScroll from './index.mjs';
 
         document.addEventListener('DOMContentLoaded', () => {
-            document.body.innerHTML = '';
+            document.querySelector('[data-slider-viewport]').innerHTML = '';
             for (let i = 0; i <= 100; i++) {
                 document.querySelector('[data-slider-viewport]').innerHTML += `<section data-slide-wrapper>
     <div data-slide-content>
@@ -51,7 +51,7 @@
     <script nomodule src="index.js"></script>
     <script nomodule>
         document.addEventListener('DOMContentLoaded', () => {
-            document.body.innerHTML = '';
+            document.querySelector('[data-slider-viewport]').innerHTML = '';
             for (let i = 0; i <= 100; i++) {
                 document.querySelector('[data-slider-viewport]').innerHTML += `<section data-slide-wrapper>
     <div data-slide-content>
