@@ -216,6 +216,7 @@ var SlideScroll =
           if (slideNode.classList.contains('active') === state) return true;
           slideNode.classList.toggle('active', state);
           if (this.options.activeHook) try {
+            if (slideNode.classList.contains('active') !== state) return true;
             this.options.activeHook(slideNode);
           } catch (e) {
             this.console.error(e);
