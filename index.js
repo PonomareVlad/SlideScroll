@@ -200,7 +200,17 @@ var SlideScroll =
 
               if (document.scrollingElement.scrollTop < slideNode.dimThreshold) return _this.setSlideDim(slideNode, 100) && _this.setSlideActive(slideNode, false); // До слайда расстояние больше чем высота одного слайда (выше, следующий за активным)
               else if (document.scrollingElement.scrollTop > slideNode.sectionOffsetEnd) return _this.setSlideDim(slideNode, 0) && _this.setSlideActive(slideNode, false); // Активный слайд, расстояние меньше чем высота одного слайда
-              else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) return _this.setSlideDim(slideNode, 0) && _this.setSlideActive(slideNode, true); // До слайда расстояние меньше чем высота одного слайда (ниже, следующий за активным)
+              else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) {
+                try {
+                  dataLayer.push({
+                    'event': 'foto_' + number
+                  }); // TODO: Google Tag Manager action
+                } catch (e) {
+                  console.error(e);
+                }
+
+                return _this.setSlideDim(slideNode, 0) && _this.setSlideActive(slideNode, true);
+              } // До слайда расстояние меньше чем высота одного слайда (ниже, следующий за активным)
               else _this.setSlideDim(slideNode, (slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 100)) && _this.setSlideActive(slideNode, false);
             }); // Установка времени задержки для ограничения такта
 

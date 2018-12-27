@@ -60,7 +60,14 @@ export default class SlideScroll {
                 else if (document.scrollingElement.scrollTop > slideNode.sectionOffsetEnd) return this.setSlideDim(slideNode, 0) && this.setSlideActive(slideNode, false);
 
                 // Активный слайд, расстояние меньше чем высота одного слайда
-                else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) return this.setSlideDim(slideNode, 0) && this.setSlideActive(slideNode, true);
+                else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) {
+                    try {
+                        dataLayer.push({'event': 'foto_' + number}); // TODO: Google Tag Manager action
+                    } catch (e) {
+                        console.error(e);
+                    }
+                    return this.setSlideDim(slideNode, 0) && this.setSlideActive(slideNode, true);
+                }
 
                 // До слайда расстояние меньше чем высота одного слайда (ниже, следующий за активным)
                 else this.setSlideDim(slideNode, ((slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 100))) && this.setSlideActive(slideNode, false);
