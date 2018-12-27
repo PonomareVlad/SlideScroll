@@ -8,6 +8,40 @@ Object.defineProperty(exports, "__esModule", {
 exports.debounce = debounce;
 exports.default = void 0;
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
+  }
+}
+
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this, args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
+
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+      }
+
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+      }
+
+      _next(undefined);
+    });
+  };
+}
+
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -37,6 +71,8 @@ var SlideScroll =
         var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
             _ref$sliderNode = _ref.sliderNode,
             sliderNode = _ref$sliderNode === void 0 ? '[data-slider-viewport]' : _ref$sliderNode,
+            _ref$lazyLoader = _ref.lazyLoader,
+            lazyLoader = _ref$lazyLoader === void 0 ? true : _ref$lazyLoader,
             _ref$scrollEventDelay = _ref.scrollEventDelay,
             scrollEventDelay = _ref$scrollEventDelay === void 0 ? 1 : _ref$scrollEventDelay,
             _ref$debug = _ref.debug,
@@ -46,6 +82,7 @@ var SlideScroll =
 
         this.options = {
           sliderNode: sliderNode,
+          lazyLoader: lazyLoader,
           scrollEventDelay: scrollEventDelay,
           iOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
           debug: debug
@@ -62,6 +99,7 @@ var SlideScroll =
           this.loadSectionsList(); // Событие прокрутки на целевом узле
 
           this.listenEvent('scroll', this.scrollEventHandler, document);
+          if (this.options.lazyLoader) this.initLazyLoader(this.options.lazyLoader);
         }
       }, {
         key: "scrollEventHandler",
@@ -117,6 +155,51 @@ var SlideScroll =
           this.console.debug("".concat(this.slidesList.length, " slides loaded"), this.slidesList);
         }
       }, {
+        key: "initLazyLoader",
+        value: function initLazyLoader(mode) {
+          var _this2 = this;
+
+          this.lazyBuffer = this.options.sliderNode.querySelectorAll('[data-slide-lazy-src]');
+          this.lazyBuffer.forEach(
+              /*#__PURE__*/
+              function () {
+                var _ref2 = _asyncToGenerator(
+                    /*#__PURE__*/
+                    regeneratorRuntime.mark(function _callee(imgNode) {
+                      return regeneratorRuntime.wrap(function _callee$(_context) {
+                        while (1) {
+                          switch (_context.prev = _context.next) {
+                            case 0:
+                              _context.next = 2;
+                              return new Promise(function (resolve, reject) {
+                                var newImgNode = new Image();
+                                newImgNode.lazyNode = imgNode;
+
+                                newImgNode.onload = function () {
+                                  if (_this2.lazyNode.parentNode) _this2.lazyNode.parentNode.replaceChild(_this2, _this2.lazyNode);
+                                  resolve(true);
+                                };
+
+                                newImgNode.src = imgNode.getAttribute('data-slide-lazy-src');
+                              });
+
+                            case 2:
+                              return _context.abrupt("return", _context.sent);
+
+                            case 3:
+                            case "end":
+                              return _context.stop();
+                          }
+                        }
+                      }, _callee, this);
+                    }));
+
+                return function (_x) {
+                  return _ref2.apply(this, arguments);
+                };
+              }());
+        }
+      }, {
         key: "listenEvent",
         value: function listenEvent(event, listener) {
           var target = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : window;
@@ -125,7 +208,7 @@ var SlideScroll =
       }, {
         key: "attachConsoleProxy",
         value: function attachConsoleProxy() {
-          var _this2 = this;
+          var _this3 = this;
 
           this.console = ['log', 'debug', 'error'].reduce(function (proxyObject, method) {
             return (proxyObject[method] = function () {
@@ -135,7 +218,7 @@ var SlideScroll =
                 args[_key] = arguments[_key];
               }
 
-              return _this2.options.debug ? (_console$method = console[method]).call.apply(_console$method, [console].concat(args)) : null;
+              return _this3.options.debug ? (_console$method = console[method]).call.apply(_console$method, [console].concat(args)) : null;
             }) && proxyObject;
           }, {});
         }

@@ -1,11 +1,13 @@
 export default class SlideScroll {
     constructor({
                     sliderNode = '[data-slider-viewport]',
+                    lazyLoader = true,
                     scrollEventDelay = 1,
                     debug = false
                 } = {}) {
         this.options = {
             sliderNode,
+            lazyLoader,
             scrollEventDelay,
             iOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
             debug
@@ -26,6 +28,8 @@ export default class SlideScroll {
 
         // Событие прокрутки на целевом узле
         this.listenEvent('scroll', this.scrollEventHandler, document);
+
+        if (this.options.lazyLoader) this.initLazyLoader(this.options.lazyLoader);
 
     }
 
@@ -90,6 +94,22 @@ export default class SlideScroll {
 
         this.console.debug(`${this.slidesList.length} slides loaded`, this.slidesList)
 
+    }
+
+    initLazyLoader(mode) {
+        this.lazyBuffer = this.options.sliderNode.querySelectorAll('[data-slide-lazy-src]');
+
+        this.lazyBuffer.forEach(async imgNode => {
+            return await new Promise((resolve, reject) => {
+                const newImgNode = new Image();
+                newImgNode.lazyNode = imgNode;
+                newImgNode.onload = () => {
+                    if (this.lazyNode.parentNode) this.lazyNode.parentNode.replaceChild(this, this.lazyNode);
+                    resolve(true);
+                };
+                newImgNode.src = imgNode.getAttribute('data-slide-lazy-src');
+            })
+        })
     }
 
     listenEvent(event, listener, target = window) {

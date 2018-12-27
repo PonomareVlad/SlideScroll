@@ -6,135 +6,82 @@
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
     <link href="index.css" rel="stylesheet">
 
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({
+            'gtm.start':
+                new Date().getTime(), event: 'gtm.js'
+        });
+        var f = d.getElementsByTagName(s)[0],
+            j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+        j.async = true;
+        j.src =
+            'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+        f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-TN3KMDH');</script>
+    <!-- End Google Tag Manager -->
+
     <!-- ES6+ Modules import -->
     <script type="module">
         import SlideScroll from './index.mjs';
 
-        window.slideScroll = new SlideScroll({
-            debug: true
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.innerHTML = '';
+            for (let i = 0; i <= 100; i++) {
+                document.querySelector('[data-slider-viewport]').innerHTML += `<section data-slide-wrapper>
+    <div data-slide-content>
+        <img data-slide-lazy-src="https://picsum.photos/1080/?image=${i}" src="https://picsum.photos/50/?blur&image=${i}" class="slide-background">
+        <div data-slide-caption-animation>
+            <h1>Тест ${i}</h1>
+            <p>Тестовый</p>
+        </div>
+    </div>
+</section>`;
+            }
+
+            window.slideScroll = new SlideScroll({
+                debug: true
+            });
+
         });
     </script>
 
     <!-- CommonJS modules import (Emulation) for older browsers -->
     <script nomodule src="index.js"></script>
     <script nomodule>
-        new SlideScroll({
-            debug: true
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.innerHTML = '';
+            for (let i = 0; i <= 100; i++) {
+                document.querySelector('[data-slider-viewport]').innerHTML += `<section data-slide-wrapper>
+    <div data-slide-content>
+        <img data-slide-lazy-src="https://picsum.photos/1080/?image=${i}" src="https://picsum.photos/50/?blur&image=${i}" class="slide-background">
+        <div data-slide-caption-animation>
+            <h1>Тест ${i}</h1>
+            <p>Тестовый</p>
+        </div>
+    </div>
+</section>`;
+            }
+            new SlideScroll({
+                debug: true
+            });
         });
     </script>
 
 </head>
-<body data-slider-viewport>
+<body>
 
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&1)">
-        <div data-slide-caption-animation>
-            <h1>Тест</h1>
-            <p>Тестовый</p>
-        </div>
-    </div>
-</section>
+<!-- Google Tag Manager (noscript) -->
+<noscript>
+    <iframe height="0" src="https://www.googletagmanager.com/ns.html?id=GTM-TN3KMDH"
+            style="display:none;visibility:hidden" width="0"></iframe>
+</noscript>
+<!-- End Google Tag Manager (noscript) -->
 
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&2)">
-        <div data-slide-caption-animation>
-            <h1>Тест 2</h1>
-            <p>Тестовый</p>
-        </div>
-    </div>
-</section>
+<main data-slider-viewport>
 
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&3)">
-        <div data-slide-caption-animation>
-            <h1>Тест 3</h1>
-            <p>Тестовый</p>
-        </div>
-    </div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&4)">
-        <div data-slide-caption-animation>
-            <h1>Тест 4</h1>
-            <p>Тестовый</p>
-        </div>
-    </div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&5)">
-        <div data-slide-caption-animation>
-            <h1>Тест 5</h1>
-            <p>Тестовый</p>
-        </div>
-    </div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&6)">
-        <div data-slide-caption-animation>
-            <h1>Тест 6</h1>
-            <p>Тестовый</p>
-        </div>
-    </div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&7)"></div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&8)"></div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&9)"></div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&10)"></div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&11)"></div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&12)"></div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&13)"></div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&14)"></div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&15)"></div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&16)"></div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&17)"></div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&18)"></div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&19)"></div>
-</section>
-
-<section data-slide-wrapper>
-    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&20)"></div>
-</section>
+</main>
 
 </body>
 </html>
