@@ -88,6 +88,87 @@ var SlideScroll =
           debug: debug
         };
         this.attachConsoleProxy();
+
+        Array.prototype.forEachAsync =
+            /*#__PURE__*/
+            function () {
+              var _ref2 = _asyncToGenerator(
+                  /*#__PURE__*/
+                  regeneratorRuntime.mark(function _callee(fn) {
+                    var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, t;
+
+                    return regeneratorRuntime.wrap(function _callee$(_context) {
+                      while (1) {
+                        switch (_context.prev = _context.next) {
+                          case 0:
+                            _iteratorNormalCompletion = true;
+                            _didIteratorError = false;
+                            _iteratorError = undefined;
+                            _context.prev = 3;
+                            _iterator = this[Symbol.iterator]();
+
+                          case 5:
+                            if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                              _context.next = 12;
+                              break;
+                            }
+
+                            t = _step.value;
+                            _context.next = 9;
+                            return fn(t);
+
+                          case 9:
+                            _iteratorNormalCompletion = true;
+                            _context.next = 5;
+                            break;
+
+                          case 12:
+                            _context.next = 18;
+                            break;
+
+                          case 14:
+                            _context.prev = 14;
+                            _context.t0 = _context["catch"](3);
+                            _didIteratorError = true;
+                            _iteratorError = _context.t0;
+
+                          case 18:
+                            _context.prev = 18;
+                            _context.prev = 19;
+
+                            if (!_iteratorNormalCompletion && _iterator.return != null) {
+                              _iterator.return();
+                            }
+
+                          case 21:
+                            _context.prev = 21;
+
+                            if (!_didIteratorError) {
+                              _context.next = 24;
+                              break;
+                            }
+
+                            throw _iteratorError;
+
+                          case 24:
+                            return _context.finish(21);
+
+                          case 25:
+                            return _context.finish(18);
+
+                          case 26:
+                          case "end":
+                            return _context.stop();
+                        }
+                      }
+                    }, _callee, this, [[3, 14, 18, 26], [19, , 21, 25]]);
+                  }));
+
+              return function (_x) {
+                return _ref2.apply(this, arguments);
+              };
+            }();
+
         document.readyState === 'complete' ? this.init() : this.listenEvent('load', this.init);
       }
 
@@ -158,44 +239,29 @@ var SlideScroll =
         key: "initLazyLoader",
         value: function initLazyLoader(mode) {
           this.lazyBuffer = this.options.sliderNode.querySelectorAll('[data-slide-lazy-src]');
-          this.lazyBuffer.forEach(
-              /*#__PURE__*/
-              function () {
-                var _ref2 = _asyncToGenerator(
-                    /*#__PURE__*/
-                    regeneratorRuntime.mark(function _callee(imgNode) {
-                      return regeneratorRuntime.wrap(function _callee$(_context) {
-                        while (1) {
-                          switch (_context.prev = _context.next) {
-                            case 0:
-                              _context.next = 2;
-                              return new Promise(function (resolve, reject) {
-                                var newImgNode = new Image();
-                                newImgNode.lazyNode = imgNode;
+          Array.from(this.lazyBuffer).forEachAsync(this.scheduleImageLoad.bind(this));
+        }
+      }, {
+        key: "scheduleImageLoad",
+        value: function scheduleImageLoad(imgNode) {
+          var self = this;
+          return new Promise(function (resolve, reject) {
+            var newImgNode = new Image();
+            newImgNode.className = imgNode.className;
+            newImgNode.lazyNode = imgNode;
 
-                                newImgNode.onload = function () {
-                                  if (this.lazyNode.parentNode) this.lazyNode.parentNode.replaceChild(this, this.lazyNode);
-                                  resolve(true);
-                                };
+            newImgNode.onload = function () {
+              if (this.lazyNode.parentNode) this.lazyNode.parentNode.replaceChild(this, this.lazyNode);
+              resolve(true);
+              self.console.debug("Image ".concat(this.src, " successfully loaded"));
+            };
 
-                                newImgNode.src = imgNode.getAttribute('data-slide-lazy-src');
-                              });
+            newImgNode.onerror = function () {
+              resolve(true);
+            };
 
-                            case 2:
-                              return _context.abrupt("return", _context.sent);
-
-                            case 3:
-                            case "end":
-                              return _context.stop();
-                          }
-                        }
-                      }, _callee, this);
-                    }));
-
-                return function (_x) {
-                  return _ref2.apply(this, arguments);
-                };
-              }());
+            newImgNode.src = imgNode.getAttribute('data-slide-lazy-src');
+          });
         }
       }, {
         key: "listenEvent",

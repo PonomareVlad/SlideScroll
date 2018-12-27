@@ -15,6 +15,12 @@ export default class SlideScroll {
 
         this.attachConsoleProxy();
 
+        Array.prototype.forEachAsync = async function (fn) {
+            for (let t of this) {
+                await fn(t)
+            }
+        };
+
         document.readyState === 'complete' ? this.init() :
             this.listenEvent('load', this.init);
     }
@@ -99,16 +105,25 @@ export default class SlideScroll {
     initLazyLoader(mode) {
         this.lazyBuffer = this.options.sliderNode.querySelectorAll('[data-slide-lazy-src]');
 
-        this.lazyBuffer.forEach(async imgNode => {
-            return await new Promise((resolve, reject) => {
-                const newImgNode = new Image();
-                newImgNode.lazyNode = imgNode;
-                newImgNode.onload = function () {
-                    if (this.lazyNode.parentNode) this.lazyNode.parentNode.replaceChild(this, this.lazyNode);
-                    resolve(true);
-                };
-                newImgNode.src = imgNode.getAttribute('data-slide-lazy-src');
-            })
+        Array.from(this.lazyBuffer).forEachAsync(this.scheduleImageLoad.bind(this));
+
+    }
+
+    scheduleImageLoad(imgNode) {
+        const self = this;
+        return new Promise(function (resolve, reject) {
+            const newImgNode = new Image();
+            newImgNode.className = imgNode.className;
+            newImgNode.lazyNode = imgNode;
+            newImgNode.onload = function () {
+                if (this.lazyNode.parentNode) this.lazyNode.parentNode.replaceChild(this, this.lazyNode);
+                resolve(true);
+                self.console.debug(`Image ${this.src} successfully loaded`);
+            };
+            newImgNode.onerror = function () {
+                resolve(true);
+            };
+            newImgNode.src = imgNode.getAttribute('data-slide-lazy-src');
         })
     }
 

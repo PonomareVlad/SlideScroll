@@ -41,6 +41,7 @@
     background-color: black;
     pointer-events: none;
     opacity: var(--dim-opacity);
+    z-index: 1;
 }
 
 [data-slide-wrapper]:first-child:before {
