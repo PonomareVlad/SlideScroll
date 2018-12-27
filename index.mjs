@@ -103,7 +103,7 @@ export default class SlideScroll {
             return await new Promise((resolve, reject) => {
                 const newImgNode = new Image();
                 newImgNode.lazyNode = imgNode;
-                newImgNode.onload = () => {
+                newImgNode.onload = function () {
                     if (this.lazyNode.parentNode) this.lazyNode.parentNode.replaceChild(this, this.lazyNode);
                     resolve(true);
                 };

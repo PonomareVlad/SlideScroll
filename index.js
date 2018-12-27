@@ -157,8 +157,6 @@ var SlideScroll =
       }, {
         key: "initLazyLoader",
         value: function initLazyLoader(mode) {
-          var _this2 = this;
-
           this.lazyBuffer = this.options.sliderNode.querySelectorAll('[data-slide-lazy-src]');
           this.lazyBuffer.forEach(
               /*#__PURE__*/
@@ -176,7 +174,7 @@ var SlideScroll =
                                 newImgNode.lazyNode = imgNode;
 
                                 newImgNode.onload = function () {
-                                  if (_this2.lazyNode.parentNode) _this2.lazyNode.parentNode.replaceChild(_this2, _this2.lazyNode);
+                                  if (this.lazyNode.parentNode) this.lazyNode.parentNode.replaceChild(this, this.lazyNode);
                                   resolve(true);
                                 };
 
@@ -208,7 +206,7 @@ var SlideScroll =
       }, {
         key: "attachConsoleProxy",
         value: function attachConsoleProxy() {
-          var _this3 = this;
+          var _this2 = this;
 
           this.console = ['log', 'debug', 'error'].reduce(function (proxyObject, method) {
             return (proxyObject[method] = function () {
@@ -218,7 +216,7 @@ var SlideScroll =
                 args[_key] = arguments[_key];
               }
 
-              return _this3.options.debug ? (_console$method = console[method]).call.apply(_console$method, [console].concat(args)) : null;
+              return _this2.options.debug ? (_console$method = console[method]).call.apply(_console$method, [console].concat(args)) : null;
             }) && proxyObject;
           }, {});
         }
