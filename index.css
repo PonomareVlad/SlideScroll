@@ -30,7 +30,7 @@
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
-    background-color: white;
+    background-color: #000000;
 }
 
 [data-slide-content]:before {
@@ -102,7 +102,7 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 
