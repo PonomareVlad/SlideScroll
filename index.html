@@ -12,7 +12,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('[data-slider-viewport]').innerHTML = '';
-            for (let i = 0; i <= 100; i++) {
+            for (let i = 0; i <= 110; i++) {
                 document.querySelector('[data-slider-viewport]').innerHTML += `<section data-slide-wrapper>
     <div data-slide-content>
         <img data-slide-lazy-src="https://picsum.photos/1080/?image=${i}" src="https://picsum.photos/50/?blur&image=${i}" class="slide-background">
@@ -25,7 +25,8 @@
             }
 
             window.slideScroll = new SlideScroll({
-                debug: true
+                debug: true,
+                activeHook: slideNode => dataLayer.push({'event': 'foto_' + slideNode.order})
             });
 
         });
@@ -36,7 +37,7 @@
     <script nomodule>
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('[data-slider-viewport]').innerHTML = '';
-            for (let i = 0; i <= 100; i++) {
+            for (let i = 0; i <= 10; i++) {
                 document.querySelector('[data-slider-viewport]').innerHTML += `<section data-slide-wrapper>
     <div data-slide-content>
         <img data-slide-lazy-src="https://picsum.photos/1080/?image=${i}" src="https://picsum.photos/50/?blur&image=${i}" class="slide-background">
@@ -48,7 +49,8 @@
 </section>`;
             }
             new SlideScroll({
-                debug: true
+                debug: true,
+                activeHook: slideNode => dataLayer.push({'event': 'foto_' + slideNode.order})
             });
         });
     </script>

@@ -76,7 +76,9 @@ var SlideScroll =
             _ref$scrollEventDelay = _ref.scrollEventDelay,
             scrollEventDelay = _ref$scrollEventDelay === void 0 ? 1 : _ref$scrollEventDelay,
             _ref$debug = _ref.debug,
-            debug = _ref$debug === void 0 ? false : _ref$debug;
+            debug = _ref$debug === void 0 ? false : _ref$debug,
+            _ref$activeHook = _ref.activeHook,
+            activeHook = _ref$activeHook === void 0 ? false : _ref$activeHook;
 
         _classCallCheck(this, SlideScroll);
 
@@ -85,7 +87,8 @@ var SlideScroll =
           lazyLoader: lazyLoader,
           scrollEventDelay: scrollEventDelay,
           iOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
-          debug: debug
+          debug: debug,
+          activeHook: activeHook
         };
         this.attachConsoleProxy();
 
@@ -200,17 +203,7 @@ var SlideScroll =
 
               if (document.scrollingElement.scrollTop < slideNode.dimThreshold) return _this.setSlideDim(slideNode, 100) && _this.setSlideActive(slideNode, false); // До слайда расстояние больше чем высота одного слайда (выше, следующий за активным)
               else if (document.scrollingElement.scrollTop > slideNode.sectionOffsetEnd) return _this.setSlideDim(slideNode, 0) && _this.setSlideActive(slideNode, false); // Активный слайд, расстояние меньше чем высота одного слайда
-              else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) {
-                try {
-                  dataLayer.push({
-                    'event': 'foto_' + number
-                  }); // TODO: Google Tag Manager action
-                } catch (e) {
-                  console.error(e);
-                }
-
-                return _this.setSlideDim(slideNode, 0) && _this.setSlideActive(slideNode, true);
-              } // До слайда расстояние меньше чем высота одного слайда (ниже, следующий за активным)
+              else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) return _this.setSlideDim(slideNode, 0) && _this.setSlideActive(slideNode, true); // До слайда расстояние меньше чем высота одного слайда (ниже, следующий за активным)
               else _this.setSlideDim(slideNode, (slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 100)) && _this.setSlideActive(slideNode, false);
             }); // Установка времени задержки для ограничения такта
 
@@ -222,6 +215,11 @@ var SlideScroll =
           // Устанавливем активный слайд
           if (slideNode.classList.contains('active') === state) return true;
           slideNode.classList.toggle('active', state);
+          if (this.options.activeHook) try {
+            this.options.activeHook(slideNode);
+          } catch (e) {
+            this.console.error(e);
+          }
         }
       }, {
         key: "setSlideDim",
@@ -237,6 +235,7 @@ var SlideScroll =
           // Выборка и кэширование списка слайдов
           this.slidesList = this.options.sliderNode.querySelectorAll('[data-slide-wrapper]');
           this.slidesList.forEach(function (slideNode, number) {
+            slideNode.order = number;
             slideNode.style.setProperty('--slide-number', number + 1);
             slideNode.sectionOffset = window.innerHeight * number;
             slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;

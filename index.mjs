@@ -3,14 +3,16 @@ export default class SlideScroll {
                     sliderNode = '[data-slider-viewport]',
                     lazyLoader = true,
                     scrollEventDelay = 1,
-                    debug = false
+                    debug = false,
+                    activeHook = false
                 } = {}) {
         this.options = {
             sliderNode,
             lazyLoader,
             scrollEventDelay,
             iOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
-            debug
+            debug,
+            activeHook
         };
 
         this.attachConsoleProxy();
@@ -60,14 +62,7 @@ export default class SlideScroll {
                 else if (document.scrollingElement.scrollTop > slideNode.sectionOffsetEnd) return this.setSlideDim(slideNode, 0) && this.setSlideActive(slideNode, false);
 
                 // Активный слайд, расстояние меньше чем высота одного слайда
-                else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) {
-                    try {
-                        dataLayer.push({'event': 'foto_' + number}); // TODO: Google Tag Manager action
-                    } catch (e) {
-                        console.error(e);
-                    }
-                    return this.setSlideDim(slideNode, 0) && this.setSlideActive(slideNode, true);
-                }
+                else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) return this.setSlideDim(slideNode, 0) && this.setSlideActive(slideNode, true);
 
                 // До слайда расстояние меньше чем высота одного слайда (ниже, следующий за активным)
                 else this.setSlideDim(slideNode, ((slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 100))) && this.setSlideActive(slideNode, false);
@@ -83,6 +78,11 @@ export default class SlideScroll {
         // Устанавливем активный слайд
         if (slideNode.classList.contains('active') === state) return true;
         slideNode.classList.toggle('active', state);
+        if (this.options.activeHook) try {
+            this.options.activeHook(slideNode)
+        } catch (e) {
+            this.console.error(e)
+        }
     }
 
     setSlideDim(slideNode, dim) {
@@ -98,6 +98,7 @@ export default class SlideScroll {
         this.slidesList = this.options.sliderNode.querySelectorAll('[data-slide-wrapper]');
 
         this.slidesList.forEach((slideNode, number) => {
+            slideNode.order = number;
             slideNode.style.setProperty('--slide-number', number + 1);
             slideNode.sectionOffset = window.innerHeight * number;
             slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
