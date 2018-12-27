@@ -8,6 +8,40 @@ Object.defineProperty(exports, "__esModule", {
 exports.debounce = debounce;
 exports.default = void 0;
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
+  }
+}
+
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this, args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
+
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+      }
+
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+      }
+
+      _next(undefined);
+    });
+  };
+}
+
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -37,20 +71,107 @@ var SlideScroll =
         var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
             _ref$sliderNode = _ref.sliderNode,
             sliderNode = _ref$sliderNode === void 0 ? '[data-slider-viewport]' : _ref$sliderNode,
+            _ref$lazyLoader = _ref.lazyLoader,
+            lazyLoader = _ref$lazyLoader === void 0 ? false : _ref$lazyLoader,
             _ref$scrollEventDelay = _ref.scrollEventDelay,
             scrollEventDelay = _ref$scrollEventDelay === void 0 ? 1 : _ref$scrollEventDelay,
             _ref$debug = _ref.debug,
-            debug = _ref$debug === void 0 ? false : _ref$debug;
+            debug = _ref$debug === void 0 ? false : _ref$debug,
+            _ref$activeHook = _ref.activeHook,
+            activeHook = _ref$activeHook === void 0 ? false : _ref$activeHook;
 
         _classCallCheck(this, SlideScroll);
 
         this.options = {
           sliderNode: sliderNode,
+          lazyLoader: lazyLoader,
           scrollEventDelay: scrollEventDelay,
           iOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
-          debug: debug
+          debug: debug,
+          activeHook: activeHook
         };
         this.attachConsoleProxy();
+
+        Array.prototype.forEachAsync =
+            /*#__PURE__*/
+            function () {
+              var _ref2 = _asyncToGenerator(
+                  /*#__PURE__*/
+                  regeneratorRuntime.mark(function _callee(fn) {
+                    var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, t;
+
+                    return regeneratorRuntime.wrap(function _callee$(_context) {
+                      while (1) {
+                        switch (_context.prev = _context.next) {
+                          case 0:
+                            _iteratorNormalCompletion = true;
+                            _didIteratorError = false;
+                            _iteratorError = undefined;
+                            _context.prev = 3;
+                            _iterator = this[Symbol.iterator]();
+
+                          case 5:
+                            if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                              _context.next = 12;
+                              break;
+                            }
+
+                            t = _step.value;
+                            _context.next = 9;
+                            return fn(t);
+
+                          case 9:
+                            _iteratorNormalCompletion = true;
+                            _context.next = 5;
+                            break;
+
+                          case 12:
+                            _context.next = 18;
+                            break;
+
+                          case 14:
+                            _context.prev = 14;
+                            _context.t0 = _context["catch"](3);
+                            _didIteratorError = true;
+                            _iteratorError = _context.t0;
+
+                          case 18:
+                            _context.prev = 18;
+                            _context.prev = 19;
+
+                            if (!_iteratorNormalCompletion && _iterator.return != null) {
+                              _iterator.return();
+                            }
+
+                          case 21:
+                            _context.prev = 21;
+
+                            if (!_didIteratorError) {
+                              _context.next = 24;
+                              break;
+                            }
+
+                            throw _iteratorError;
+
+                          case 24:
+                            return _context.finish(21);
+
+                          case 25:
+                            return _context.finish(18);
+
+                          case 26:
+                          case "end":
+                            return _context.stop();
+                        }
+                      }
+                    }, _callee, this, [[3, 14, 18, 26], [19, , 21, 25]]);
+                  }));
+
+              return function (_x) {
+                return _ref2.apply(this, arguments);
+              };
+            }();
+
         document.readyState === 'complete' ? this.init() : this.listenEvent('load', this.init);
       }
 
@@ -62,6 +183,7 @@ var SlideScroll =
           this.loadSectionsList(); // Событие прокрутки на целевом узле
 
           this.listenEvent('scroll', this.scrollEventHandler, document);
+          if (this.options.lazyLoader) this.initLazyLoader(this.options.lazyLoader);
         }
       }, {
         key: "scrollEventHandler",
@@ -93,6 +215,12 @@ var SlideScroll =
           // Устанавливем активный слайд
           if (slideNode.classList.contains('active') === state) return true;
           slideNode.classList.toggle('active', state);
+          if (this.options.activeHook) try {
+            if (slideNode.classList.contains('active') !== state) return true;
+            this.options.activeHook(slideNode);
+          } catch (e) {
+            this.console.error(e);
+          }
         }
       }, {
         key: "setSlideDim",
@@ -108,6 +236,7 @@ var SlideScroll =
           // Выборка и кэширование списка слайдов
           this.slidesList = this.options.sliderNode.querySelectorAll('[data-slide-wrapper]');
           this.slidesList.forEach(function (slideNode, number) {
+            slideNode.order = number;
             slideNode.style.setProperty('--slide-number', number + 1);
             slideNode.sectionOffset = window.innerHeight * number;
             slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
@@ -115,6 +244,38 @@ var SlideScroll =
             slideNode.dim = 0;
           });
           this.console.debug("".concat(this.slidesList.length, " slides loaded"), this.slidesList);
+        }
+      }, {
+        key: "initLazyLoader",
+        value: function initLazyLoader(mode) {
+          switch (mode) {
+            case 'waterfall':
+              this.lazyBuffer = this.options.sliderNode.querySelectorAll('[data-slide-lazy-src]');
+              Array.from(this.lazyBuffer).forEachAsync(this.scheduleImageLoad.bind(this));
+              break;
+          }
+        }
+      }, {
+        key: "scheduleImageLoad",
+        value: function scheduleImageLoad(imgNode) {
+          var self = this;
+          return new Promise(function (resolve, reject) {
+            var newImgNode = new Image();
+            newImgNode.className = imgNode.className;
+            newImgNode.lazyNode = imgNode;
+
+            newImgNode.onload = function () {
+              if (this.lazyNode.parentNode) this.lazyNode.parentNode.replaceChild(this, this.lazyNode);
+              resolve(true);
+              self.console.debug("Image ".concat(this.src, " successfully loaded"));
+            };
+
+            newImgNode.onerror = function () {
+              resolve(true);
+            };
+
+            newImgNode.src = imgNode.getAttribute('data-slide-lazy-src');
+          });
         }
       }, {
         key: "listenEvent",

@@ -11,7 +11,8 @@
         import SlideScroll from './index.mjs';
 
         window.slideScroll = new SlideScroll({
-            debug: true
+            debug: true,
+            activeHook: slideNode => dataLayer.push({'event': 'foto_' + slideNode.order})
         });
     </script>
 
@@ -19,7 +20,8 @@
     <script nomodule src="index.js"></script>
     <script nomodule>
         new SlideScroll({
-            debug: true
+            debug: true,
+            activeHook: slideNode => dataLayer.push({'event': 'foto_' + slideNode.order})
         });
     </script>
 
@@ -134,6 +136,46 @@
 
 <section data-slide-wrapper>
     <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&20)"></div>
+</section>
+
+<section data-slide-wrapper>
+    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&21)"></div>
+</section>
+
+<section data-slide-wrapper>
+    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&22)"></div>
+</section>
+
+<section data-slide-wrapper>
+    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&23)"></div>
+</section>
+
+<section data-slide-wrapper>
+    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&24)"></div>
+</section>
+
+<section data-slide-wrapper>
+    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&25)"></div>
+</section>
+
+<section data-slide-wrapper>
+    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&26)"></div>
+</section>
+
+<section data-slide-wrapper>
+    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&27)"></div>
+</section>
+
+<section data-slide-wrapper>
+    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&28)"></div>
+</section>
+
+<section data-slide-wrapper>
+    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&29)"></div>
+</section>
+
+<section data-slide-wrapper>
+    <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&30)"></div>
 </section>
 
 </body>

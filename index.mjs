@@ -1,17 +1,27 @@
 export default class SlideScroll {
     constructor({
                     sliderNode = '[data-slider-viewport]',
+                    lazyLoader = false,
                     scrollEventDelay = 1,
-                    debug = false
+                    debug = false,
+                    activeHook = false
                 } = {}) {
         this.options = {
             sliderNode,
+            lazyLoader,
             scrollEventDelay,
             iOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
-            debug
+            debug,
+            activeHook
         };
 
         this.attachConsoleProxy();
+
+        Array.prototype.forEachAsync = async function (fn) {
+            for (let t of this) {
+                await fn(t)
+            }
+        };
 
         document.readyState === 'complete' ? this.init() :
             this.listenEvent('load', this.init);
@@ -26,6 +36,8 @@ export default class SlideScroll {
 
         // Событие прокрутки на целевом узле
         this.listenEvent('scroll', this.scrollEventHandler, document);
+
+        if (this.options.lazyLoader) this.initLazyLoader(this.options.lazyLoader);
 
     }
 
@@ -66,6 +78,12 @@ export default class SlideScroll {
         // Устанавливем активный слайд
         if (slideNode.classList.contains('active') === state) return true;
         slideNode.classList.toggle('active', state);
+        if (this.options.activeHook) try {
+            if (slideNode.classList.contains('active') !== state) return true;
+            this.options.activeHook(slideNode)
+        } catch (e) {
+            this.console.error(e)
+        }
     }
 
     setSlideDim(slideNode, dim) {
@@ -81,6 +99,7 @@ export default class SlideScroll {
         this.slidesList = this.options.sliderNode.querySelectorAll('[data-slide-wrapper]');
 
         this.slidesList.forEach((slideNode, number) => {
+            slideNode.order = number;
             slideNode.style.setProperty('--slide-number', number + 1);
             slideNode.sectionOffset = window.innerHeight * number;
             slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
@@ -90,6 +109,35 @@ export default class SlideScroll {
 
         this.console.debug(`${this.slidesList.length} slides loaded`, this.slidesList)
 
+    }
+
+    initLazyLoader(mode) {
+
+        switch (mode) {
+            case 'waterfall':
+                this.lazyBuffer = this.options.sliderNode.querySelectorAll('[data-slide-lazy-src]');
+                Array.from(this.lazyBuffer).forEachAsync(this.scheduleImageLoad.bind(this));
+                break;
+        }
+
+    }
+
+    scheduleImageLoad(imgNode) {
+        const self = this;
+        return new Promise(function (resolve, reject) {
+            const newImgNode = new Image();
+            newImgNode.className = imgNode.className;
+            newImgNode.lazyNode = imgNode;
+            newImgNode.onload = function () {
+                if (this.lazyNode.parentNode) this.lazyNode.parentNode.replaceChild(this, this.lazyNode);
+                resolve(true);
+                self.console.debug(`Image ${this.src} successfully loaded`);
+            };
+            newImgNode.onerror = function () {
+                resolve(true);
+            };
+            newImgNode.src = imgNode.getAttribute('data-slide-lazy-src');
+        })
     }
 
     listenEvent(event, listener, target = window) {
