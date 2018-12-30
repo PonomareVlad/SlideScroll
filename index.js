@@ -72,8 +72,9 @@ var SlideScroll =
 
           this.listenEvent('scroll', this.options.scrollEventDelay ? debounce(this.scrollEventHandler, this.options.scrollEventDelay) : this.scrollEventHandler, document); // Событие прокрутки на целевом узле
 
-          this.triggerEvent('ready');
+          this.activeSlideWorker(this.slidesList[1]);
           this.scrollEventHandler();
+          this.triggerEvent('ready');
         }
       }, {
         key: "scrollEventHandler",
