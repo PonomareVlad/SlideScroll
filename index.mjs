@@ -1,27 +1,21 @@
 export default class SlideScroll {
     constructor({
                     sliderNode = '[data-slider-viewport]',
-                    lazyLoader = false,
                     scrollEventDelay = 1,
+                    lazyDisplayOffset = 3,
                     debug = false,
                     activeHook = false
                 } = {}) {
         this.options = {
             sliderNode,
-            lazyLoader,
             scrollEventDelay,
+            lazyDisplayOffset,
             iOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
             debug,
             activeHook
         };
 
         this.attachConsoleProxy();
-
-        Array.prototype.forEachAsync = async function (fn) {
-            for (let t of this) {
-                await fn(t)
-            }
-        };
 
         document.readyState === 'complete' ? this.init() :
             this.listenEvent('load', this.init);
@@ -31,55 +25,72 @@ export default class SlideScroll {
 
         this.options.sliderNode = this.options.sliderNode instanceof Node ? this.options.sliderNode : document.querySelector(this.options.sliderNode);
 
-        // Кэширование списка слайдов
         this.loadSectionsList();
+        // Кэширование списка слайдов
 
+        this.listenEvent('scroll', this.options.scrollEventDelay ? debounce(this.scrollEventHandler, this.options.scrollEventDelay) : this.scrollEventHandler, document);
         // Событие прокрутки на целевом узле
-        this.listenEvent('scroll', this.scrollEventHandler, document);
-
-        if (this.options.lazyLoader) this.initLazyLoader(this.options.lazyLoader);
 
     }
 
     scrollEventHandler() {
 
-        // Ограничение такта вызова обработчика события скролла
-        return debounce(() => {
+        for (const slideNode of this.slidesList) {
 
-            // Перебор всех закэшированных слайдов
-            this.slidesList.forEach((slideNode, number) => {
+            if (this.options.iOS) this.calcSlideOffsets(slideNode);
 
-                if (this.options.iOS) {
-                    slideNode.sectionOffset = window.innerHeight * number;
-                    slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
-                    slideNode.dimThreshold = slideNode.sectionOffset - window.innerHeight;
-                }
+            if (document.scrollingElement.scrollTop > slideNode.dimThreshold && document.scrollingElement.scrollTop < slideNode.sectionOffsetEnd && document.scrollingElement.scrollTop < slideNode.sectionOffset) {
+                // Грядущий слайд
+                this.activeSlideWorker(slideNode);
+                break;
+            }
 
-                // До слайда расстояние больше чем высота одного слайда (ниже, через один от активного)
-                if (document.scrollingElement.scrollTop < slideNode.dimThreshold) return this.setSlideDim(slideNode, 100) && this.setSlideActive(slideNode, false);
+        }
 
-                // До слайда расстояние больше чем высота одного слайда (выше, следующий за активным)
-                else if (document.scrollingElement.scrollTop > slideNode.sectionOffsetEnd) return this.setSlideDim(slideNode, 0) && this.setSlideActive(slideNode, false);
+    }
 
-                // Активный слайд, расстояние меньше чем высота одного слайда
-                else if (document.scrollingElement.scrollTop > slideNode.sectionOffset) return this.setSlideDim(slideNode, 0) && this.setSlideActive(slideNode, true);
+    activeSlideWorker(slideNode) {
 
-                // До слайда расстояние меньше чем высота одного слайда (ниже, следующий за активным)
-                else this.setSlideDim(slideNode, ((slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 100))) && this.setSlideActive(slideNode, false);
+        const slidesState = [];
 
-            });
+        if (this.options.lazyDisplayOffset) {
+            // Lazy Display offset
+            for (let i = slideNode.order; i < slideNode.order + this.options.lazyDisplayOffset; i++) slidesState[i] = {display: true};
+            for (let i = slideNode.order; i > slideNode.order - this.options.lazyDisplayOffset; i--) slidesState[i] = {display: true};
+        }
 
-            // Установка времени задержки для ограничения такта
-        }, this.options.scrollEventDelay)()
+        slidesState[slideNode.order - 2] = {dim: 0, display: true}; // Предыдущий слайд (Выходит за экран на расстояние, превышающее высоту одного экрана (слайда), не виден)
 
+        slidesState[slideNode.order - 1] = {dim: 0, display: true, active: true}; // Активный слайд (Выходит за экран вверх, но частично виден)
+
+        slidesState[slideNode.order] = {
+            dim: ((slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 100)),
+            display: true
+        }; // Грядущий слайд (Частично виден, затемнен)
+
+        slidesState[slideNode.order + 1] = {dim: 0, display: true}; // Будущий слайд (Не виден)
+
+        this.slidesList.forEach(slideNode => {
+            let slideState = {dim: 100, display: false, active: false};
+            Object.assign(slideState, slidesState[slideNode.order] || {});
+            this.setSlideDim(slideNode, slideState.dim);
+            this.setSlideDisplay(slideNode, this.options.lazyDisplayOffset ? slideState.display : true);
+            this.setSlideActive(slideNode, slideState.active);
+        });
+
+    }
+
+    setSlideDisplay(slideNode, state) {
+        // Устанавливем отображение слайда
+        if (slideNode.classList.contains('display') === state) return true;
+        slideNode.classList.toggle('display', state);
     }
 
     setSlideActive(slideNode, state) {
         // Устанавливем активный слайд
         if (slideNode.classList.contains('active') === state) return true;
         slideNode.classList.toggle('active', state);
-        if (this.options.activeHook) try {
-            if (slideNode.classList.contains('active') !== state) return true;
+        if (state && this.options.activeHook) try {
             this.options.activeHook(slideNode)
         } catch (e) {
             this.console.error(e)
@@ -89,55 +100,33 @@ export default class SlideScroll {
     setSlideDim(slideNode, dim) {
         // Устанавливем прозрачность затемнения
         if (slideNode.dim === dim) return true;
-        slideNode.style.setProperty('--dim-opacity', dim / 100);
+        slideNode.style.setProperty('--dim-opacity', 1 - (dim / 100));
         slideNode.dim = dim;
     }
 
     loadSectionsList() {
 
         // Выборка и кэширование списка слайдов
-        this.slidesList = this.options.sliderNode.querySelectorAll('[data-slide-wrapper]');
+        this.slidesList = Array.from(this.options.sliderNode.querySelectorAll('[data-slide-wrapper]'));
 
         this.slidesList.forEach((slideNode, number) => {
+            slideNode.dim = 100;
             slideNode.order = number;
             slideNode.style.setProperty('--slide-number', number + 1);
-            slideNode.sectionOffset = window.innerHeight * number;
-            slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
-            slideNode.dimThreshold = slideNode.sectionOffset - window.innerHeight;
-            slideNode.dim = 0;
+            this.calcSlideOffsets(slideNode);
+
         });
 
-        this.console.debug(`${this.slidesList.length} slides loaded`, this.slidesList)
+        this.console.debug(`${this.slidesList.length} slides loaded`, this.slidesList);
+
+        this.activeSlideWorker(this.slidesList[1]); // Устанавливем первый слайд как активный
 
     }
 
-    initLazyLoader(mode) {
-
-        switch (mode) {
-            case 'waterfall':
-                this.lazyBuffer = this.options.sliderNode.querySelectorAll('[data-slide-lazy-src]');
-                Array.from(this.lazyBuffer).forEachAsync(this.scheduleImageLoad.bind(this));
-                break;
-        }
-
-    }
-
-    scheduleImageLoad(imgNode) {
-        const self = this;
-        return new Promise(function (resolve, reject) {
-            const newImgNode = new Image();
-            newImgNode.className = imgNode.className;
-            newImgNode.lazyNode = imgNode;
-            newImgNode.onload = function () {
-                if (this.lazyNode.parentNode) this.lazyNode.parentNode.replaceChild(this, this.lazyNode);
-                resolve(true);
-                self.console.debug(`Image ${this.src} successfully loaded`);
-            };
-            newImgNode.onerror = function () {
-                resolve(true);
-            };
-            newImgNode.src = imgNode.getAttribute('data-slide-lazy-src');
-        })
+    calcSlideOffsets(slideNode) {
+        slideNode.sectionOffset = window.innerHeight * slideNode.order;
+        slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
+        slideNode.dimThreshold = slideNode.sectionOffset - window.innerHeight;
     }
 
     listenEvent(event, listener, target = window) {
@@ -165,5 +154,4 @@ export function debounce(func, wait) {
     }
 }
 
-// Проброс класса в глобальную область видимости
-window.SlideScroll = SlideScroll;
+window.SlideScroll = SlideScroll; // Проброс класса в глобальную область видимости

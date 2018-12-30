@@ -11,7 +11,7 @@
         import SlideScroll from './index.mjs';
 
         window.slideScroll = new SlideScroll({
-            debug: true
+            activeHook: slideNode => dataLayer.push({'event': 'foto_' + slideNode.order})
         });
     </script>-->
 
@@ -19,13 +19,14 @@
     <script src="index.js"></script>
     <script>
         new SlideScroll({
-            debug: true,
             activeHook: slideNode => dataLayer.push({'event': 'foto_' + slideNode.order})
         });
     </script>
 
 </head>
-<body data-slider-viewport>
+<body>
+
+<main data-slider-viewport>
 
 <section data-slide-wrapper>
     <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&1)">
@@ -176,6 +177,8 @@
 <section data-slide-wrapper>
     <div data-slide-content style="background-image: url(https://picsum.photos/1024/?random&30)"></div>
 </section>
+
+</main>
 
 </body>
 </html>
