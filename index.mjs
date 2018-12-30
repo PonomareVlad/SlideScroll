@@ -1,8 +1,8 @@
 export default class SlideScroll {
     constructor({
                     sliderNode = '[data-slider-viewport]',
-                    scrollEventDelay = 1,
-                    lazyDisplayOffset = 3,
+                    scrollEventDelay = false,
+                    lazyDisplayOffset = false,
                     debug = false,
                     activeHook = false
                 } = {}) {
