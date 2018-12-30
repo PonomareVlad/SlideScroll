@@ -11,23 +11,25 @@
         import SlideScroll from './index.mjs';
         import UrlScroll from './urlscrolling/index.mjs';
 
+        // Запускаем плагин слайдов
         window.slideScroll = new SlideScroll({
-            debug: true
+            lazyDisplayOffset: 3, // Количество отображаемых блоков относительно активного
+            debug: true // Режим отладки в консоли
         });
 
-        slideScroll.onActive(slideNode => {
-            dataLayer.push({'event': 'foto_' + slideNode.order})
-        });
+        slideScroll.onActive(slideNode => dataLayer.push({'event': 'foto_' + slideNode.order})); // GTM
 
         slideScroll.onReady(() => {
             window.urlscroll = new UrlScroll({
-                scrollNode: '[data-slider-viewport]',
-                scrollEventNode: false,
-                debug: true,
+                scrollNode: '[data-slider-viewport]', // Контейнер слайдов
+                scrollEventNode: false, // Отключаем встроенный обработчик события прокрутки, т.к. будет использоваться обработчик плагина слайдов
+                debug: true, // Режим отладки в консоли
                 customRouterScrollWorker: node => node && SlideScroll.calcSlideOffsets(node) &&
                     SlideScroll.setSlideDisplay(node, true) && SlideScroll.setSlideDim(node, 0) &&
-                    UrlScroll.asyncThread(() => window.scrollTo(0, node.sectionOffset))
+                    UrlScroll.asyncThread(() => window.scrollTo(0, node.sectionOffset)) // Перезаписываем обработчик, который прокручивает страницу к целевому слайду, при загрузке страницы
             });
+
+            // Подписываем функцию смены адреса страницы, на событие смены активного слайда
             slideScroll.onActive(urlscroll.setSectionState.bind(urlscroll));
         });
 
@@ -37,23 +39,25 @@
     <script src="index.js"></script>
     <script src="urlscrolling/index.js"></script>
     <script>
+        // Запускаем плагин слайдов
         window.slideScroll = new SlideScroll({
-            debug: true
+            lazyDisplayOffset: 3, // Количество отображаемых блоков относительно активного
+            debug: true // Режим отладки в консоли
         });
 
-        slideScroll.onActive(slideNode => {
-            dataLayer.push({'event': 'foto_' + slideNode.order})
-        });
+        slideScroll.onActive(slideNode => dataLayer.push({'event': 'foto_' + slideNode.order})); // GTM
 
         slideScroll.onReady(() => {
             window.urlscroll = new UrlScroll({
-                scrollNode: '[data-slider-viewport]',
-                scrollEventNode: false,
-                debug: true,
+                scrollNode: '[data-slider-viewport]', // Контейнер слайдов
+                scrollEventNode: false, // Отключаем встроенный обработчик события прокрутки, т.к. будет использоваться обработчик плагина слайдов
+                debug: true, // Режим отладки в консоли
                 customRouterScrollWorker: node => node && SlideScroll.calcSlideOffsets(node) &&
                     SlideScroll.setSlideDisplay(node, true) && SlideScroll.setSlideDim(node, 0) &&
-                    UrlScroll.asyncThread(() => window.scrollTo(0, node.sectionOffset))
+                    UrlScroll.asyncThread(() => window.scrollTo(0, node.sectionOffset)) // Перезаписываем обработчик, который прокручивает страницу к целевому слайду, при загрузке страницы
             });
+
+            // Подписываем функцию смены адреса страницы, на событие смены активного слайда
             slideScroll.onActive(urlscroll.setSectionState.bind(urlscroll));
         });
     </script>
