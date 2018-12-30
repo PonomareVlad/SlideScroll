@@ -17,7 +17,7 @@
             debug: true // Режим отладки в консоли
         });
 
-        slideScroll.onActive(slideNode => dataLayer.push({'event': 'foto_' + slideNode.order})); // GTM
+        slideScroll.onActive(slideNode => console.log('foto_' + slideNode.order)); // GTM
 
         slideScroll.onReady(() => {
             window.urlscroll = new UrlScroll({
@@ -45,7 +45,7 @@
             debug: true // Режим отладки в консоли
         });
 
-        slideScroll.onActive(slideNode => dataLayer.push({'event': 'foto_' + slideNode.order})); // GTM
+        slideScroll.onActive(slideNode => console.log('foto_' + slideNode.order)); // GTM
 
         slideScroll.onReady(() => {
             window.urlscroll = new UrlScroll({
