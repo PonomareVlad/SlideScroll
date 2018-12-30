@@ -3,6 +3,8 @@ export default class UrlScroll {
     constructor({
                     scrollNode = document, // DOM узел, который будет скроллится или его селектор
                     scrollEventNode = document,
+                    beforeRouterScrollHook = false,
+                    customRouterScrollWorker = false,
                     pathAttribute = 'id', // Аттрибут для поиска путей в секциях
                     headerSection = true, // Прокрутка на начало страницы будет добавлять шаг в историю с корневым URL
                     scrollEventDelay = 20, // Задержка вызова события прокрутки
@@ -13,6 +15,8 @@ export default class UrlScroll {
         this.options = {
             scrollNode: scrollNode instanceof Node ? scrollNode : document.querySelector(scrollNode),
             scrollEventNode,
+            beforeRouterScrollHook,
+            customRouterScrollWorker,
             pathAttribute,
             headerSection,
             scrollEventDelay,
@@ -44,25 +48,10 @@ export default class UrlScroll {
 
     }
 
-    routingHandler(event) {
+    static asyncThread(func, timeout = 1) {
 
-        this.console.debug('Routing start', event);
-
-        // Временное отключение обработчика прокрутки (Защита от создавания лишних шагов в истории)
-        this.disableScrollEvent();
-
-        // Целевой путь URL
-        let targetPath = this.currentStateData(event).sectionPath || this.currentPath();
-
-        // Узел секции ассоцированный с целевым путем URL
-        let targetSectionNode = this.options.scrollNode.querySelector(`[${this.options.pathAttribute}="${targetPath}"]`);
-
-        // Прокрутка в начало целевой секции, или, в случае ее отсутствия, в начало страницы
-        targetSectionNode ? this.asyncThread(() => targetSectionNode.scrollIntoView()) :
-            this.asyncThread(() => document.body.scrollTo(0, 0));
-
-        if (targetSectionNode) this.console.debug(`Scrolled to ${targetPath}`, targetSectionNode);
-
+        // Вызов функции в отдельном потоке
+        return setTimeout(func, timeout);
     }
 
     scrollEventHandler() {
@@ -139,10 +128,40 @@ export default class UrlScroll {
 
     }
 
-    asyncThread(func) {
+    routingHandler(event) {
 
-        // Вызов функции в отдельном потоке
-        return setTimeout(func, 1);
+        this.console.debug('Routing start', event);
+
+        // Временное отключение обработчика прокрутки (Защита от создавания лишних шагов в истории)
+        this.disableScrollEvent();
+
+        // Целевой путь URL
+        let targetPath = this.currentStateData(event).sectionPath || this.currentPath();
+
+        // Узел секции ассоцированный с целевым путем URL
+        let targetSectionNode = this.options.scrollNode.querySelector(`[${this.options.pathAttribute}="${targetPath}"]`);
+
+        if (this.options.beforeRouterScrollHook) try {
+            this.options.beforeRouterScrollHook(targetSectionNode);
+        } catch (e) {
+            this.console.error(e)
+        }
+
+        if (this.options.customRouterScrollWorker) {
+            try {
+                this.options.customRouterScrollWorker(targetSectionNode);
+            } catch (e) {
+                this.console.error(e)
+            }
+        } else targetSectionNode ? UrlScroll.asyncThread(() => targetSectionNode.scrollIntoView()) :
+            UrlScroll.asyncThread(() => document.body.scrollTo(0, 0));
+
+        // Прокрутка в начало целевой секции, или, в случае ее отсутствия, в начало страницы
+        /*targetSectionNode ? UrlScroll.asyncThread(() => targetSectionNode.scrollIntoView()) :
+            UrlScroll.asyncThread(() => document.body.scrollTo(0, 0));*/
+
+        if (targetSectionNode) this.console.debug(`Scrolled to ${targetPath}`, targetSectionNode);
+
     }
 
     checkPath(sectionPath) { // TODO: Optimise conditions

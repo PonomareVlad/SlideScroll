@@ -11,11 +11,25 @@
         import SlideScroll from './index.mjs';
         import UrlScroll from './urlscrolling/index.mjs';
 
-        window.urlscroll = new UrlScroll({scrollNode: '[data-slider-viewport]', scrollEventNode: false, debug: true});
-
         window.slideScroll = new SlideScroll({
             // activeHook: slideNode => dataLayer.push({'event': 'foto_' + slideNode.order})
-            activeHook: urlscroll.setSectionState.bind(urlscroll)
+            // activeHook: urlscroll.setSectionState.bind(urlscroll),
+            debug: true
+        });
+
+        slideScroll.onReady(() => {
+            window.urlscroll = new UrlScroll({
+                scrollNode: '[data-slider-viewport]',
+                scrollEventNode: false,
+                debug: true,
+                customRouterScrollWorker: node => {
+                    SlideScroll.calcSlideOffsets(node);
+                    SlideScroll.setSlideDisplay(node, true);
+                    SlideScroll.setSlideDim(node, 0);
+                    UrlScroll.asyncThread(() => window.scrollTo(0, node.sectionOffset))
+                }
+            });
+            slideScroll.setOption('activeHook', urlscroll.setSectionState.bind(urlscroll))
         });
 
     </script>

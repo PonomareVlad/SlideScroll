@@ -155,9 +155,9 @@ var SlideScroll =
             };
             Object.assign(slideState, slidesState[slideNode.order] || {});
 
-            _this.setSlideDim(slideNode, slideState.dim);
+            SlideScroll.setSlideDim(slideNode, slideState.dim);
 
-            _this.setSlideDisplay(slideNode, slideState.display);
+            SlideScroll.setSlideDisplay(slideNode, slideState.display);
 
             _this.setSlideActive(slideNode, slideState.active);
           });
