@@ -156,10 +156,6 @@ export default class UrlScroll {
         } else targetSectionNode ? UrlScroll.asyncThread(() => targetSectionNode.scrollIntoView()) :
             UrlScroll.asyncThread(() => document.body.scrollTo(0, 0));
 
-        // Прокрутка в начало целевой секции, или, в случае ее отсутствия, в начало страницы
-        /*targetSectionNode ? UrlScroll.asyncThread(() => targetSectionNode.scrollIntoView()) :
-            UrlScroll.asyncThread(() => document.body.scrollTo(0, 0));*/
-
         if (targetSectionNode) this.console.debug(`Scrolled to ${targetPath}`, targetSectionNode);
 
     }

@@ -6,6 +6,7 @@ export default class SlideScroll {
                     debug = false,
                     activeHook = false
                 } = {}) {
+
         this.options = {
             sliderNode,
             scrollEventDelay,
@@ -15,7 +16,7 @@ export default class SlideScroll {
             activeHook
         };
 
-        this.eventHandlers = {ready: []};
+        this.eventHandlers = {ready: [], active: []};
 
         this.attachConsoleProxy();
 
@@ -25,6 +26,7 @@ export default class SlideScroll {
 
     static setSlideDisplay(slideNode, state) {
         // Устанавливем отображение слайда
+        if (!slideNode) return false;
         if (slideNode.classList.contains('display') === state) return true;
         slideNode.classList.toggle('display', state);
         return true
@@ -32,6 +34,7 @@ export default class SlideScroll {
 
     static setSlideDim(slideNode, dim) {
         // Устанавливем прозрачность затемнения
+        if (!slideNode) return false;
         if (slideNode.dim && slideNode.dim === dim) return true;
         slideNode.style.setProperty('--dim-opacity', 1 - (dim / 100));
         slideNode.dim = dim;
@@ -39,6 +42,7 @@ export default class SlideScroll {
     }
 
     static calcSlideOffsets(slideNode) {
+        if (!slideNode) return false;
         slideNode.sectionOffset = window.innerHeight * slideNode.order;
         slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
         slideNode.dimThreshold = slideNode.sectionOffset - window.innerHeight;
@@ -112,11 +116,7 @@ export default class SlideScroll {
         // Устанавливем активный слайд
         if (slideNode.classList.contains('active') === state) return true;
         slideNode.classList.toggle('active', state);
-        if (state && this.options.activeHook) try {
-            this.options.activeHook(slideNode)
-        } catch (e) {
-            this.console.error(e)
-        }
+        if (state) this.triggerEvent('active', slideNode);
         return true;
     }
 
@@ -154,11 +154,11 @@ export default class SlideScroll {
         this.options[option] = value;
     }
 
-    triggerEvent(event) {
+    triggerEvent(event, data) {
         if (!this.eventHandlers[event]) return true;
         this.eventHandlers[event].forEach(handler => {
             try {
-                handler();
+                handler(data);
             } catch (e) {
                 this.console.error(e);
             }
@@ -168,6 +168,10 @@ export default class SlideScroll {
 
     onReady(handler) {
         this.eventHandlers.ready.push(handler);
+    }
+
+    onActive(handler) {
+        this.eventHandlers.active.push(handler);
     }
 }
 

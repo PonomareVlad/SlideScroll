@@ -12,9 +12,11 @@
         import UrlScroll from './urlscrolling/index.mjs';
 
         window.slideScroll = new SlideScroll({
-            // activeHook: slideNode => dataLayer.push({'event': 'foto_' + slideNode.order})
-            // activeHook: urlscroll.setSectionState.bind(urlscroll),
             debug: true
+        });
+
+        slideScroll.onActive(slideNode => {
+            dataLayer.push({'event': 'foto_' + slideNode.order})
         });
 
         slideScroll.onReady(() => {
@@ -22,14 +24,11 @@
                 scrollNode: '[data-slider-viewport]',
                 scrollEventNode: false,
                 debug: true,
-                customRouterScrollWorker: node => {
-                    SlideScroll.calcSlideOffsets(node);
-                    SlideScroll.setSlideDisplay(node, true);
-                    SlideScroll.setSlideDim(node, 0);
+                customRouterScrollWorker: node => node && SlideScroll.calcSlideOffsets(node) &&
+                    SlideScroll.setSlideDisplay(node, true) && SlideScroll.setSlideDim(node, 0) &&
                     UrlScroll.asyncThread(() => window.scrollTo(0, node.sectionOffset))
-                }
             });
-            slideScroll.setOption('activeHook', urlscroll.setSectionState.bind(urlscroll))
+            slideScroll.onActive(urlscroll.setSectionState.bind(urlscroll));
         });
 
     </script>
@@ -38,10 +37,24 @@
     <script nomodule src="index.js"></script>
     <script nomodule src="urlscrolling/index.js"></script>
     <script nomodule>
-        window.urlscroll = new UrlScroll({scrollNode: '[data-slider-viewport]', scrollEventNode: false, debug: true});
         window.slideScroll = new SlideScroll({
-            // activeHook: slideNode => dataLayer.push({'event': 'foto_' + slideNode.order})
-            activeHook: urlscroll.setSectionState.bind(urlscroll)
+            debug: true
+        });
+
+        slideScroll.onActive(slideNode => {
+            dataLayer.push({'event': 'foto_' + slideNode.order})
+        });
+
+        slideScroll.onReady(() => {
+            window.urlscroll = new UrlScroll({
+                scrollNode: '[data-slider-viewport]',
+                scrollEventNode: false,
+                debug: true,
+                customRouterScrollWorker: node => node && SlideScroll.calcSlideOffsets(node) &&
+                    SlideScroll.setSlideDisplay(node, true) && SlideScroll.setSlideDim(node, 0) &&
+                    UrlScroll.asyncThread(() => window.scrollTo(0, node.sectionOffset))
+            });
+            slideScroll.onActive(urlscroll.setSectionState.bind(urlscroll));
         });
     </script>
 
