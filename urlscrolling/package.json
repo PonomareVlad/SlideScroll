@@ -1,0 +1,56 @@
+{
+  "_from": "urlscrolling",
+  "_id": "urlscrolling@1.0.0",
+  "_inBundle": false,
+  "_integrity": "sha512-4SwbV96WXsNBo4u0J9HAb/eyGWeFPAfJisWhak7sCUHoOyTm/gZo5bheQVD6DYDkK8zsZh4FNB5hgVIc3ihOhg==",
+  "_location": "/urlscrolling",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "urlscrolling",
+    "name": "urlscrolling",
+    "escapedName": "urlscrolling",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/urlscrolling/-/urlscrolling-1.0.0.tgz",
+  "_shasum": "ce52f53a48b07f2cae169383614167cb301f883b",
+  "_spec": "urlscrolling",
+  "_where": "/Users/ponomarevlad/Documents/Repositories/SlideScroll",
+  "author": {
+    "name": "Vladislav Ponomarev",
+    "url": "https://ponomarevlad.ru"
+  },
+  "bugs": {
+    "url": "https://github.com/PonomareVlad/UrlScrolling/issues"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "Dynamically change current URL path while scrolling between different sections",
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.0"
+  },
+  "files": [
+    "index.*"
+  ],
+  "homepage": "https://github.com/PonomareVlad/UrlScrolling#readme",
+  "license": "MIT",
+  "main": "index",
+  "name": "urlscrolling",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PonomareVlad/UrlScrolling.git"
+  },
+  "scripts": {
+    "prepare": "babel index.mjs --out-file index.js --presets @babel/env && babel index.js --minified --no-comments --source-maps -o index.min.js"
+  },
+  "version": "1.0.0"
+}
