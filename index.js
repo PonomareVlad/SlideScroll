@@ -56,6 +56,10 @@ var SlideScroll =
           debug: debug,
           activeHook: activeHook
         };
+        this.eventHandlers = {
+          ready: [],
+          active: []
+        };
         this.attachConsoleProxy();
         document.readyState === 'complete' ? this.init() : this.listenEvent('load', this.init);
       }
@@ -67,6 +71,10 @@ var SlideScroll =
           this.loadSectionsList(); // Кэширование списка слайдов
 
           this.listenEvent('scroll', this.options.scrollEventDelay ? debounce(this.scrollEventHandler, this.options.scrollEventDelay) : this.scrollEventHandler, document); // Событие прокрутки на целевом узле
+
+          this.activeSlideWorker(this.slidesList[1]);
+          this.scrollEventHandler();
+          this.triggerEvent('ready');
         }
       }, {
         key: "scrollEventHandler",
@@ -78,14 +86,10 @@ var SlideScroll =
           try {
             for (var _iterator = this.slidesList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
               var slideNode = _step.value;
-
-              if (this.options.iOS) {
-                slideNode.sectionOffset = window.innerHeight * slideNode.order;
-                slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
-                slideNode.dimThreshold = slideNode.sectionOffset - window.innerHeight;
-              }
+              if (this.options.iOS) SlideScroll.calcSlideOffsets(slideNode);
 
               if (document.scrollingElement.scrollTop > slideNode.dimThreshold && document.scrollingElement.scrollTop < slideNode.sectionOffsetEnd && document.scrollingElement.scrollTop < slideNode.sectionOffset) {
+                // Грядущий слайд
                 this.activeSlideWorker(slideNode);
                 break;
               }
@@ -113,6 +117,7 @@ var SlideScroll =
           var slidesState = [];
 
           if (this.options.lazyDisplayOffset) {
+            // Lazy Display offset
             for (var i = slideNode.order; i < slideNode.order + this.options.lazyDisplayOffset; i++) {
               slidesState[i] = {
                 display: true
@@ -154,20 +159,12 @@ var SlideScroll =
               active: false
             };
             Object.assign(slideState, slidesState[slideNode.order] || {});
-
-            _this.setSlideDim(slideNode, slideState.dim);
-
-            _this.setSlideDisplay(slideNode, slideState.display);
+            SlideScroll.setSlideDim(slideNode, slideState.dim);
 
             _this.setSlideActive(slideNode, slideState.active);
+
+            SlideScroll.setSlideDisplay(slideNode, _this.options.lazyDisplayOffset ? slideState.display : true);
           });
-        }
-      }, {
-        key: "setSlideDisplay",
-        value: function setSlideDisplay(slideNode, state) {
-          // Устанавливем отображение слайда
-          if (slideNode.classList.contains('display') === state) return true;
-          slideNode.classList.toggle('display', state);
         }
       }, {
         key: "setSlideActive",
@@ -175,19 +172,8 @@ var SlideScroll =
           // Устанавливем активный слайд
           if (slideNode.classList.contains('active') === state) return true;
           slideNode.classList.toggle('active', state);
-          if (state && this.options.activeHook) try {
-            this.options.activeHook(slideNode);
-          } catch (e) {
-            this.console.error(e);
-          }
-        }
-      }, {
-        key: "setSlideDim",
-        value: function setSlideDim(slideNode, dim) {
-          // Устанавливем прозрачность затемнения
-          if (slideNode.dim === dim) return true;
-          slideNode.style.setProperty('--dim-opacity', 1 - dim / 100);
-          slideNode.dim = dim;
+          if (state) this.triggerEvent('active', slideNode);
+          return true;
         }
       }, {
         key: "loadSectionsList",
@@ -195,15 +181,12 @@ var SlideScroll =
           // Выборка и кэширование списка слайдов
           this.slidesList = Array.from(this.options.sliderNode.querySelectorAll('[data-slide-wrapper]'));
           this.slidesList.forEach(function (slideNode, number) {
+            slideNode.dim = 100;
             slideNode.order = number;
             slideNode.style.setProperty('--slide-number', number + 1);
-            slideNode.sectionOffset = window.innerHeight * number;
-            slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
-            slideNode.dimThreshold = slideNode.sectionOffset - window.innerHeight;
-            slideNode.dim = 100;
+            SlideScroll.calcSlideOffsets(slideNode);
           });
           this.console.debug("".concat(this.slidesList.length, " slides loaded"), this.slidesList);
-          this.activeSlideWorker(this.slidesList[1]); // Устанавливем первый слайд как активный
         }
       }, {
         key: "listenEvent",
@@ -227,6 +210,64 @@ var SlideScroll =
               return _this2.options.debug ? (_console$method = console[method]).call.apply(_console$method, [console].concat(args)) : null;
             }) && proxyObject;
           }, {});
+        }
+      }, {
+        key: "setOption",
+        value: function setOption(option, value) {
+          this.options[option] = value;
+        }
+      }, {
+        key: "triggerEvent",
+        value: function triggerEvent(event, data) {
+          var _this3 = this;
+
+          if (!this.eventHandlers[event]) return true;
+          this.eventHandlers[event].forEach(function (handler) {
+            try {
+              handler(data);
+            } catch (e) {
+              _this3.console.error(e);
+            }
+          });
+          return true;
+        }
+      }, {
+        key: "onReady",
+        value: function onReady(handler) {
+          this.eventHandlers.ready.push(handler);
+        }
+      }, {
+        key: "onActive",
+        value: function onActive(handler) {
+          this.eventHandlers.active.push(handler);
+        }
+      }], [{
+        key: "setSlideDisplay",
+        value: function setSlideDisplay(slideNode, state) {
+          // Устанавливем отображение слайда
+          if (!slideNode) return false;
+          if (slideNode.classList.contains('display') === state) return true;
+          slideNode.classList.toggle('display', state);
+          return true;
+        }
+      }, {
+        key: "setSlideDim",
+        value: function setSlideDim(slideNode, dim) {
+          // Устанавливем прозрачность затемнения
+          if (!slideNode) return false;
+          if (slideNode.dim && slideNode.dim === dim) return true;
+          slideNode.style.setProperty('--dim-opacity', 1 - dim / 100);
+          slideNode.dim = dim;
+          return true;
+        }
+      }, {
+        key: "calcSlideOffsets",
+        value: function calcSlideOffsets(slideNode) {
+          if (!slideNode) return false;
+          slideNode.sectionOffset = window.innerHeight * slideNode.order;
+          slideNode.sectionOffsetEnd = slideNode.sectionOffset + window.innerHeight;
+          slideNode.dimThreshold = slideNode.sectionOffset - window.innerHeight;
+          return true;
         }
       }]);
 
