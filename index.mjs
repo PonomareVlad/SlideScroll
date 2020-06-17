@@ -95,14 +95,18 @@ export default class SlideScroll {
 
         slidesState[slideNode.order - 2] = {dim: 0, display: true}; // Предыдущий слайд (Выходит за экран на расстояние, превышающее высоту одного экрана (слайда), не виден)
 
-        slidesState[slideNode.order - 1] = {dim: 0, display: true, active: true}; // Активный слайд (Выходит за экран вверх, но частично виден)
+        slidesState[slideNode.order - 1] = {
+            dim: 100 - ((slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 2 / 100)),
+            display: true,
+            active: true
+        }; // Активный слайд (Выходит за экран вверх, но частично виден)
 
         slidesState[slideNode.order] = {
             dim: ((slideNode.sectionOffset - document.scrollingElement.scrollTop) / (window.innerHeight / 100)),
             display: true
         }; // Грядущий слайд (Частично виден, затемнен)
 
-        slidesState[slideNode.order + 1] = {dim: 0, display: true}; // Будущий слайд (Не виден)
+        slidesState[slideNode.order + 1] = {dim: 100, display: true}; // Будущий слайд (Не виден)
 
         this.slidesList.forEach(slideNode => {
             let slideState = {dim: 100, display: false, active: false};
